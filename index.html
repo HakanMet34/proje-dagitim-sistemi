@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proje Dağıtım Sistemi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.5s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .header h1 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .user-info { display: flex; gap: 15px; align-items: center; }
+        .user-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        .logout-btn {
+            background: white;
+            color: #ff4757;
+            border: 2px solid #ff4757;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover {
+            background: #ff4757;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .login-container {
+            background: white;
+            padding: 50px;
+            border-radius: 25px;
+            max-width: 450px;
+            margin: 100px auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .login-container h2 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 30px;
+            font-weight: 800;
+        }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 10px; 
+            font-weight: 700;
+            color: #333;
+            font-size: 14px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
+            outline: none; 
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.18);
+        }
+        .stat-card h3 {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+        .stat-card .number {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        .content-card h2 { 
+            color: #667eea; 
+            margin-bottom: 25px; 
+            font-size: 24px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .product-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            background: linear-gradient(to bottom, #ffffff, #fafafa);
+        }
+        .product-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            transform: translateY(-3px);
+        }
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .product-title { 
+            font-size: 20px; 
+            font-weight: 800;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-badge {
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-beklemede { background: #fff4e6; color: #ff9800; }
+        .status-devam { background: #e3f2fd; color: #2196f3; }
+        .status-tamamlandi { background: #e8f5e9; color: #4caf50; }
+        .ad-active-badge {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .product-details {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .product-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-size: 14px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .product-detail strong { color: #333; font-weight: 700; }
+        .product-actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { 
+            background: #5568d3;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .btn-success { background: #4caf50; color: white; }
+        .btn-success:hover { 
+            background: #43a047;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        .btn-danger { background: #f44336; color: white; }
+        .btn-danger:hover { 
+            background: #e53935;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+        .btn-warning { background: #ff9800; color: white; }
+        .btn-warning:hover { 
+            background: #fb8c00;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+        .btn-ad { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; }
+        .btn-ad:hover { 
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            max-width: 650px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 25px; 
+        }
+        .modal-header h3 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .close-modal { 
+            background: none; 
+            border: none; 
+            font-size: 32px; 
+            color: #999; 
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-modal:hover {
+            color: #333;
+            transform: rotate(90deg);
+        }
+        .video-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        .video-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+        .video-link { 
+            color: #667eea; 
+            text-decoration: none; 
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .video-link:hover { text-decoration: underline; }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            z-index: 2000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .notification.show { display: block; }
+        .notification.success { border-left: 5px solid #4caf50; }
+        .notification.error { border-left: 5px solid #f44336; }
+        .empty-state { 
+            text-align: center; 
+            padding: 80px 20px; 
+            color: #999; 
+        }
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 35px;
+            margin-top: 25px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 25px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -41px;
+            top: 5px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #667eea;
+        }
+        .timeline-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .timeline-content {
+            color: #333;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+        .team-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s;
+        }
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        .team-card h3 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 800;
+        }
+        .team-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: stretch; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .product-actions { flex-direction: column; }
+            .action-btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">🔥 Firebase yükleniyor...</div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, update, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDa92khlGcSfkiT1VO7rXXOjBw6pYxiGDM",
+            authDomain: "proje-dagitim-sistemi.firebaseapp.com",
+            databaseURL: "https://proje-dagitim-sistemi-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "proje-dagitim-sistemi",
+            storageBucket: "proje-dagitim-sistemi.firebasestorage.app",
+            messagingSenderId: "304766008965",
+            appId: "1:304766008965:web:dccb001f7bbeb9fae6b3ec"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        window.db = db;
+        window.dbRef = ref;
+        window.dbSet = set;
+        window.dbGet = get;
+        window.dbUpdate = update;
+        window.dbRemove = remove;
+        window.dbOnValue = onValue;
+
+        const usersRef = ref(db, 'users/hakan');
+        const snapshot = await get(usersRef);
+        if (!snapshot.exists()) {
+            await set(usersRef, {
+                username: 'hakan',
+                password: 'hakan123',
+                role: 'admin',
+                name: 'Hakan'
+            });
+        }
+
+        console.log('Firebase hazır!');
+        startApp();
+    </script>
+
+    <script>
+        let currentUser = null;
+        let currentProductId = null;
+        let allProducts = {};
+
+        function startApp() {
+            document.body.innerHTML = '<div id="loginScreen" class="login-container"><h2>🚀 Proje Dağıtım Sistemi</h2><div class="form-group"><label>Kullanıcı Adı</label><input type="text" id="loginUsername" placeholder="Kullanıcı adınızı girin"></div><div class="form-group"><label>Şifre</label><input type="password" id="loginPassword" placeholder="Şifrenizi girin"></div><button class="btn" style="width: 100%;" onclick="login()">🔐 Giriş Yap</button></div><div id="mainScreen" style="display: none;"><div class="container"><div class="header"><h1>🚀 Proje Dağıtım Sistemi</h1><div class="user-info"><div class="user-badge" id="userBadge"></div><button class="logout-btn" onclick="logout()">🚪 Çıkış</button></div></div><div class="stats-grid"><div class="stat-card"><h3>Toplam Proje</h3><div class="number" id="totalProducts">0</div></div><div class="stat-card"><h3>Bekleyen</h3><div class="number" id="pendingProducts">0</div></div><div class="stat-card"><h3>Devam Eden</h3><div class="number" id="inProgressProducts">0</div></div><div class="stat-card"><h3>Tamamlanan</h3><div class="number" id="completedProducts">0</div></div></div><div class="content-card"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;"><h2>📦 Tüm Projeler</h2><button class="btn" onclick="openAddModal()" id="addBtn">➕ Yeni Proje Ekle</button></div><div id="productsList"></div></div><div class="content-card" id="teamSection" style="display: none;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;"><h2>👥 Ekip Üyeleri</h2><button class="btn" onclick="openTeamModal()">➕ Ekip Üyesi Ekle</button></div><div id="teamList" class="team-grid"></div></div><div class="content-card"><h2>🔔 Son Aktiviteler</h2><div class="timeline" id="activityTimeline"><div class="timeline-item"><div class="timeline-date">Şimdi</div><div class="timeline-content">Sisteme hoş geldiniz! 🎉</div></div></div></div></div></div><div id="addModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>➕ Yeni Proje Ekle</h3><button class="close-modal" onclick="closeModal()">&times;</button></div><div class="form-group"><label>📝 Proje Adı</label><input type="text" id="productName" placeholder="Proje adını girin"></div><div class="form-group"><label>🔗 Ürün Linki</label><input type="url" id="productLink" placeholder="https://..."></div><div class="form-group"><label>💰 Fiyat (TL)</label><input type="number" id="productPrice" placeholder="0"></div><div class="form-group"><label>👤 Ekip Üyesi</label><select id="teamSelect"><option value="">Ekip üyesi seçin</option></select></div><div class="form-group"><label>📋 Not (Opsiyonel)</label><textarea id="productNote" rows="3" placeholder="Ekstra bilgi veya talimatlar..."></textarea></div><button class="btn" style="width: 100%;" onclick="addProduct()">✅ Proje Ekle</button></div></div><div id="detailModal" class="modal"><div class="modal-content"><div class="modal-header"><h3 id="detailTitle">📦 Proje</h3><button class="close-modal" onclick="closeDetailModal()">&times;</button></div><div id="detailContent"></div><h4 style="margin-top: 30px; color: #667eea; font-size: 18px; font-weight: 800;">🎥 Video Linkleri (Google Drive)</h4><div id="videoList" style="margin-top: 15px;"></div><div class="form-group" style="margin-top: 20px;"><label>🔗 Google Drive Video Linki</label><input type="url" id="videoInput" placeholder="https://drive.google.com/..."><small style="color: #999; margin-top: 8px; display: block;">Videoyu Drive\'a yükle → Sağ tık → Paylaş → Linki kopyala</small></div><button class="btn" style="width: 100%;" onclick="addVideo()">➕ Video Linki Ekle</button><div class="form-group" style="margin-top: 30px;"><label>🌐 Ürünün Site Linki</label><input type="url" id="siteInput" placeholder="Trendyol, n11, kendi siteniz vb."></div><button class="btn" style="width: 100%;" onclick="saveSite()">💾 Site Linkini Kaydet</button></div></div><div id="teamModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>➕ Yeni Ekip Üyesi</h3><button class="close-modal" onclick="closeTeamModal()">&times;</button></div><div class="form-group"><label>👤 Ad Soyad</label><input type="text" id="memberName" placeholder="Örn: Ali Yılmaz" oninput="generateUsername()"></div><div class="form-group"><label>🔐 Kullanıcı Adı (Otomatik)</label><input type="text" id="memberUsername" readonly style="background: #f5f5f5; cursor: not-allowed;"><small style="color: #999; margin-top: 8px; display: block;">Bu kullanıcı adı ile giriş yapacak</small></div><div class="form-group"><label>🔑 Şifre</label><input type="password" id="memberPassword" placeholder="Güvenli şifre"></div><button class="btn" style="width: 100%;" onclick="addTeamMember()">✅ Ekip Üyesi Ekle</button></div></div><div id="notification" class="notification"></div>';
+
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainScreen').style.display = 'block';
+                document.getElementById('userBadge').textContent = currentUser.name;
+                if (currentUser.role === 'team') {
+                    document.getElementById('addBtn').style.display = 'none';
+                    document.getElementById('teamSection').style.display = 'none';
+                } else {
+                    document.getElementById('teamSection').style.display = 'block';
+                }
+                loadTeam();
+                loadProducts();
+                loadTeamList();
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showNotif('Kullanıcı adı ve şifre gerekli!', 'error');
+                return;
+            }
+
+            const userRef = window.dbRef(window.db, 'users/' + username);
+            const snapshot = await window.dbGet(userRef);
+
+            if (snapshot.exists()) {
+                const user = snapshot.val();
+                if (user.password === password) {
+                    currentUser = user;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('mainScreen').style.display = 'block';
+                    document.getElementById('userBadge').textContent = currentUser.name;
+
+                    if (currentUser.role === 'team') {
+                        document.getElementById('addBtn').style.display = 'none';
+                        document.getElementById('teamSection').style.display = 'none';
+                    } else {
+                        document.getElementById('teamSection').style.display = 'block';
+                    }
+
+                    loadTeam();
+                    loadProducts();
+                    loadTeamList();
+                    showNotif('Hoş geldiniz, ' + currentUser.name + '! 🎉', 'success');
+                } else {
+                    showNotif('Şifre hatalı!', 'error');
+                }
+            } else {
+                showNotif('Kullanıcı bulunamadı!', 'error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        async function loadTeam() {
+            const usersRef = window.dbRef(window.db, 'users');
+            const snapshot = await window.dbGet(usersRef);
+            
+            const sel = document.getElementById('teamSelect');
+            sel.innerHTML = '<option value="">Ekip üyesi seçin</option>';
+
+            if (snapshot.exists()) {
+                const users = snapshot.val();
+                Object.entries(users).forEach(([key, user]) => {
+                    if (user.role === 'team') {
+                        sel.innerHTML += '<option value="' + key + '">' + user.name + '</option>';
+                    }
+                });
+            }
+        }
+
+        async function loadTeamList() {
+            if (currentUser.role !== 'admin') return;
+
+            const usersRef = window.dbRef(window.db, 'users');
+            const snapshot = await window.dbGet(usersRef);
+            
+            const teamList = document.getElementById('teamList');
+
+            if (!snapshot.exists()) {
+                teamList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><p>Henüz ekip üyesi yok</p></div>';
+                return;
+            }
+
+            const users = snapshot.val();
+            const teamMembers = Object.entries(users).filter(([key, user]) => user.role === 'team');
+
+            if (teamMembers.length === 0) {
+                teamList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><p>Henüz ekip üyesi yok</p></div>';
+                return;
+            }
+
+            teamList.innerHTML = teamMembers.map(([key, user]) => {
+                const userProducts = Object.values(allProducts).filter(p => p.assignedTo === key);
+                const completed = userProducts.filter(p => p.status === 'tamamlandi').length;
+                const inProgress = userProducts.filter(p => p.status === 'devam').length;
+                const pending = userProducts.filter(p => p.status === 'beklemede').length;
+
+                return '<div class="team-card">' +
+                    '<h3>👤 ' + user.name + '</h3>' +
+                    '<div class="team-stat"><span>Toplam Görev:</span><strong>' + userProducts.length + '</strong></div>' +
+                    '<div class="team-stat"><span>✅ Tamamlanan:</span><strong>' + completed + '</strong></div>' +
+                    '<div class="team-stat"><span>⏳ Devam Eden:</span><strong>' + inProgress + '</strong></div>' +
+                    '<div class="team-stat"><span>⏸️ Bekleyen:</span><strong>' + pending + '</strong></div>' +
+                    '<div class="team-stat"><span>📊 Başarı Oranı:</span><strong>' + (userProducts.length > 0 ? Math.round((completed / userProducts.length) * 100) : 0) + '%</strong></div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('productName').value = '';
+            document.getElementById('productLink').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('teamSelect').value = '';
+            document.getElementById('productNote').value = '';
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        function openTeamModal() {
+            document.getElementById('memberName').value = '';
+            document.getElementById('memberUsername').value = '';
+            document.getElementById('memberPassword').value = '';
+            document.getElementById('teamModal').classList.add('active');
+        }
+
+        function closeTeamModal() {
+            document.getElementById('teamModal').classList.remove('active');
+        }
+
+        function generateUsername() {
+            const name = document.getElementById('memberName').value.trim();
+            if (!name) {
+                document.getElementById('memberUsername').value = '';
+                return;
+            }
+
+            const username = name.toLowerCase()
+                .replace(/ğ/g, 'g')
+                .replace(/ü/g, 'u')
+                .replace(/ş/g, 's')
+                .replace(/ı/g, 'i')
+                .replace(/ö/g, 'o')
+                .replace(/ç/g, 'c')
+                .replace(/[^a-z0-9]/g, '');
+
+            document.getElementById('memberUsername').value = username;
+        }
+
+        async function addTeamMember() {
+            const name = document.getElementById('memberName').value.trim();
+            const username = document.getElementById('memberUsername').value.trim();
+            const password = document.getElementById('memberPassword').value;
+
+            if (!name || !username || !password) {
+                showNotif('Tüm alanları doldurun!', 'error');
+                return;
+            }
+
+            const userRef = window.dbRef(window.db, 'users/' + username);
+            const snapshot = await window.dbGet(userRef);
+
+            if (snapshot.exists()) {
+                showNotif('Bu kullanıcı adı kullanılıyor!', 'error');
+                return;
+            }
+
+            await window.dbSet(userRef, {
+                username: username,
+                password: password,
+                role: 'team',
+                name: name
+            });
+
+            closeTeamModal();
+            showNotif(name + ' başarıyla eklendi! 🎉', 'success');
+            loadTeam();
+            loadTeamList();
+        }
+
+        async function addProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const link = document.getElementById('productLink').value.trim();
+            const price = document.getElementById('productPrice').value;
+            const team = document.getElementById('teamSelect').value;
+            const note = document.getElementById('productNote').value.trim();
+
+            if (!name || !link || !price || !team) {
+                showNotif('Tüm alanları doldurun!', 'error');
+                return;
+            }
+
+            const id = 'prod_' + Date.now();
+            const ref = window.dbRef(window.db, 'products/' + id);
+
+            await window.dbSet(ref, {
+                id: id,
+                name: name,
+                link: link,
+                price: parseFloat(price),
+                assignedTo: team,
+                assignedBy: currentUser.username,
+                status: 'beklemede',
+                note: note,
+                createdAt: new Date().toISOString(),
+                videos: {},
+                siteLink: '',
+                adActive: false
+            });
+
+            closeModal();
+            showNotif('Proje başarıyla eklendi! 🎉', 'success');
+        }
+
+        async function loadProducts() {
+            const ref = window.dbRef(window.db, 'products');
+            
+            window.dbOnValue(ref, (snapshot) => {
+                if (snapshot.exists()) {
+                    allProducts = snapshot.val();
+                } else {
+                    allProducts = {};
+                }
+                displayProducts();
+                updateStats();
+                loadTeamList();
+            });
+        }
+
+        function updateStats() {
+            const products = Object.values(allProducts);
+            let filtered = products;
+
+            if (currentUser.role === 'team') {
+                filtered = products.filter(p => p.assignedTo === currentUser.username);
+            }
+
+            const active = filtered.filter(p => p.status !== 'tamamlandi' && p.status !== 'iptal');
+
+            document.getElementById('totalProducts').textContent = active.length;
+            document.getElementById('pendingProducts').textContent = active.filter(p => p.status === 'beklemede').length;
+            document.getElementById('inProgressProducts').textContent = active.filter(p => p.status === 'devam').length;
+            document.getElementById('completedProducts').textContent = filtered.filter(p => p.status === 'tamamlandi').length;
+        }
+
+        function displayProducts() {
+            const products = Object.values(allProducts).filter(p => {
+                if (currentUser.role === 'team') {
+                    return p.assignedTo === currentUser.username;
+                }
+                return true;
+            });
+
+            const cont = document.getElementById('productsList');
+            
+            if (products.length === 0) {
+                cont.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📦</div><p>Henüz proje yok. Yukarıdaki butondan yeni proje ekleyin!</p></div>';
+                return;
+            }
+
+            cont.innerHTML = products.map(p => {
+                const st = { 'beklemede': 'Beklemede', 'devam': 'Devam Ediyor', 'tamamlandi': 'Tamamlandı' };
+                const vc = p.videos ? Object.keys(p.videos).length : 0;
+
+                return '<div class="product-card">' +
+                    '<div class="product-header">' +
+                        '<div class="product-title">📦 ' + p.name + '</div>' +
+                        '<div>' +
+                            '<span class="status-badge status-' + p.status + '">' + st[p.status] + '</span>' +
+                            (p.adActive ? '<span class="ad-active-badge">📢 Reklam Aktif</span>' : '') +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="product-details">' +
+                        '<div class="product-detail"><strong>💰 Fiyat:</strong> ' + p.price + ' TL</div>' +
+                        '<div class="product-detail"><strong>🎥 Video:</strong> ' + vc + ' adet</div>' +
+                        '<div class="product-detail"><strong>📅 Oluşturulma:</strong> ' + new Date(p.createdAt).toLocaleDateString('tr-TR') + '</div>' +
+                        (p.note ? '<div class="product-detail"><strong>📝 Not:</strong> ' + p.note + '</div>' : '') +
+                    '</div>' +
+                    '<div class="product-actions">' +
+                        '<button class="action-btn btn-primary" onclick="openDetail(\'' + p.id + '\')">📋 Detay</button>' +
+                        (currentUser.role === 'admin' && !p.adActive ? 
+                            '<button class="action-btn btn-ad" onclick="markAd(\'' + p.id + '\')">📢 Reklam Açıldı</button>' : '') +
+                        (currentUser.role === 'team' && p.status === 'beklemede' ? 
+                            '<button class="action-btn btn-warning" onclick="updateSt(\'' + p.id + '\', \'devam\')">▶️ Başlat</button>' : '') +
+                        (currentUser.role === 'team' && p.status === 'devam' ? 
+                            '<button class="action-btn btn-success" onclick="updateSt(\'' + p.id + '\', \'tamamlandi\')">✅ Tamamla</button>' : '') +
+                        (currentUser.role === 'admin' ? 
+                            '<button class="action-btn btn-danger" onclick="updateSt(\'' + p.id + '\', \'iptal\')">❌ İptal</button>' : '') +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        async function markAd(id) {
+            const ref = window.dbRef(window.db, 'products/' + id);
+            await window.dbUpdate(ref, { 
+                adActive: true,
+                adActivatedAt: new Date().toISOString() 
+            });
+            showNotif('Reklam durumu güncellendi! 📢', 'success');
+        }
+
+        async function updateSt(id, st) {
+            const ref = window.dbRef(window.db, 'products/' + id);
+            await window.dbUpdate(ref, { 
+                status: st,
+                updatedAt: new Date().toISOString()
+            });
+            showNotif('Durum güncellendi! 🎉', 'success');
+        }
+
+        function openDetail(id) {
+            currentProductId = id;
+            const p = allProducts[id];
+
+            document.getElementById('detailTitle').textContent = '📦 ' + p.name;
+
+            const st = { 'beklemede': 'Beklemede', 'devam': 'Devam Ediyor', 'tamamlandi': 'Tamamlandı' };
+
+            document.getElementById('detailContent').innerHTML = 
+                '<div class="product-details">' +
+                    '<div class="product-detail"><strong>📊 Durum:</strong> <span class="status-badge status-' + p.status + '">' + st[p.status] + '</span> ' +
+                    (p.adActive ? '<span class="ad-active-badge">📢 Reklam Aktif</span>' : '') + '</div>' +
+                    '<div class="product-detail"><strong>💰 Fiyat:</strong> ' + p.price + ' TL</div>' +
+                    '<div class="product-detail"><strong>🔗 Ürün Linki:</strong> <a href="' + p.link + '" target="_blank" style="color: #667eea; font-weight: 700;">Linke Git →</a></div>' +
+                    (p.note ? '<div class="product-detail"><strong>📝 Not:</strong> ' + p.note + '</div>' : '') +
+                    (p.siteLink ? '<div class="product-detail"><strong>🌐 Site Linki:</strong> <a href="' + p.siteLink + '" target="_blank" style="color: #667eea; font-weight: 700;">Siteye Git →</a></div>' : '') +
+                '</div>';
+
+            loadVideos(p.videos || {});
+            document.getElementById('siteInput').value = p.siteLink || '';
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        function loadVideos(vids) {
+            const cont = document.getElementById('videoList');
+            const arr = Object.entries(vids);
+
+            if (arr.length === 0) {
+                cont.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎥</div><p>Henüz video yok. Aşağıdan Google Drive linki ekleyin!</p></div>';
+                return;
+            }
+
+            cont.innerHTML = arr.map(([id, v]) => 
+                '<div class="video-item">' +
+                    '<a href="' + v.url + '" target="_blank" class="video-link">🎥 Video <small style="color: #999;">(' + new Date(v.uploadedAt).toLocaleDateString('tr-TR') + ')</small></a>' +
+                    '<button class="action-btn btn-danger" onclick="delVideo(\'' + id + '\')">🗑️ Sil</button>' +
+                '</div>'
+            ).join('');
+        }
+
+        async function addVideo() {
+            const url = document.getElementById('videoInput').value.trim();
+
+            if (!url) {
+                showNotif('Video linki girin!', 'error');
+                return;
+            }
+
+            if (!url.includes('drive.google.com')) {
+                showNotif('Lütfen Google Drive linki girin!', 'error');
+                return;
+            }
+
+            const vid = 'vid_' + Date.now();
+            const ref = window.dbRef(window.db, 'products/' + currentProductId + '/videos/' + vid);
+
+            await window.dbSet(ref, {
+                url: url,
+                uploadedAt: new Date().toISOString(),
+                uploadedBy: currentUser.name
+            });
+
+            document.getElementById('videoInput').value = '';
+            showNotif('Video linki başarıyla eklendi! 🎉', 'success');
+        }
+
+        async function delVideo(vid) {
+            if (!confirm('Bu videoyu silmek istediğinize emin misiniz?')) return;
+
+            const ref = window.dbRef(window.db, 'products/' + currentProductId + '/videos/' + vid);
+            await window.dbRemove(ref);
+            showNotif('Video silindi!', 'success');
+        }
+
+        async function saveSite() {
+            const site = document.getElementById('siteInput').value.trim();
+            
+            const ref = window.dbRef(window.db, 'products/' + currentProductId);
+            await window.dbUpdate(ref, { siteLink: site });
+            
+            showNotif('Site linki başarıyla kaydedildi! 🎉', 'success');
+        }
+
+        function showNotif(msg, type) {
+            const n = document.getElementById('notification');
+            n.textContent = msg;
+            n.className = 'notification ' + type + ' show';
+
+            setTimeout(() => {
+                n.classList.remove('show');
+            }, 3000);
+        }
+
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && document.getElementById('loginPassword') === document.activeElement) {
+                login();
+            }
+        });
+    </script>
+</body>
+</html>
