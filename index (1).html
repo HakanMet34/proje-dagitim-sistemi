@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proje Dağıtım Sistemi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">🔥 Firebase yükleniyor...</div>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, update, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDa92khlGcSfkiT1VO7rXXOjBw6pYxiGDM",
+            authDomain: "proje-dagitim-sistemi.firebaseapp.com",
+            databaseURL: "https://proje-dagitim-sistemi-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "proje-dagitim-sistemi",
+            storageBucket: "proje-dagitim-sistemi.firebasestorage.app",
+            messagingSenderId: "304766008965",
+            appId: "1:304766008965:web:dccb001f7bbeb9fae6b3ec"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        window.db = database;
+        window.dbRef = ref;
+        window.dbSet = set;
+        window.dbGet = get;
+        window.dbUpdate = update;
+        window.dbRemove = remove;
+        window.dbOnValue = onValue;
+        
+        console.log('🔥 Firebase hazır!');
+        document.body.innerHTML = '';
+        loadApp();
+    </script>
+
+    <script>
+        function loadApp() {
+            document.body.innerHTML = `
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+.container { max-width: 1400px; margin: 0 auto; }
+.header {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    animation: slideDown 0.5s ease;
+}
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.header h1 {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 32px;
+    font-weight: 800;
+}
+.user-info { display: flex; align-items: center; gap: 15px; }
+.user-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+.logout-btn, .settings-btn {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s;
+}
+.logout-btn:hover, .settings-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+.logout-btn {
+    background: #ff4757;
+    border-color: #ff4757;
+    color: white;
+}
+.login-container {
+    background: white;
+    padding: 50px;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 450px;
+    margin: 100px auto;
+}
+.login-container h2 {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 800;
+}
+.form-group { margin-bottom: 25px; }
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    color: #333;
+    font-weight: 700;
+    font-size: 14px;
+}
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+.btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+.tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+.tab {
+    background: white;
+    padding: 14px 28px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #666;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.tab:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+.tab.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    transform: translateY(-3px);
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+.stat-card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+}
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.18);
+}
+.stat-card h3 {
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+}
+.stat-card .number {
+    font-size: 42px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.content-card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    margin-bottom: 30px;
+}
+.content-card h2 {
+    color: #667eea;
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: 800;
+}
+.products-grid { display: grid; gap: 25px; }
+.product-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 25px;
+    transition: all 0.3s;
+    background: linear-gradient(to bottom, #ffffff, #fafafa);
+}
+.product-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    transform: translateY(-3px);
+}
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.product-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #333;
+}
+.status-badge {
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.status-beklemede { background: #fff4e6; color: #ff9800; }
+.status-devam { background: #e3f2fd; color: #2196f3; }
+.status-tamamlandi { background: #e8f5e9; color: #4caf50; }
+.status-iptal { background: #ffebee; color: #f44336; }
+.ad-active-badge {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+.product-details { display: grid; gap: 12px; margin-bottom: 20px; }
+.product-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #666;
+    font-size: 14px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+.product-detail strong { color: #333; font-weight: 700; }
+.product-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+.action-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    transition: all 0.3s;
+}
+.btn-primary { background: #667eea; color: white; }
+.btn-primary:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+.btn-success { background: #4caf50; color: white; }
+.btn-danger { background: #f44336; color: white; }
+.btn-warning { background: #ff9800; color: white; }
+.btn-ad {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.modal.active { display: flex; }
+.modal-content {
+    background: white;
+    padding: 35px;
+    border-radius: 20px;
+    max-width: 650px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.modal-header h3 {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 24px;
+    font-weight: 800;
+}
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.close-modal:hover {
+    color: #333;
+    transform: rotate(90deg);
+}
+.video-list { margin-top: 20px; }
+.video-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 2px solid #e0e0e0;
+}
+.video-item:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+.video-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 700;
+    word-break: break-all;
+}
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 20px 25px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    z-index: 2000;
+    max-width: 350px;
+    display: none;
+}
+.notification.show { display: block; }
+.notification.success { border-left: 5px solid #4caf50; }
+.notification.error { border-left: 5px solid #f44336; }
+.notification.info { border-left: 5px solid #2196f3; }
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #999;
+}
+.empty-state-icon {
+    font-size: 72px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+.chat-container {
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: #fafafa;
+}
+.chat-message {
+    margin-bottom: 15px;
+    padding: 14px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.chat-message.admin {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.chat-author {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 14px;
+}
+.chat-time {
+    font-size: 12px;
+    color: #999;
+}
+.chat-text {
+    color: #333;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.chat-input-container {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+.chat-input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 14px;
+}
+.send-btn {
+    padding: 12px 24px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 25px;
+}
+.team-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s;
+}
+.team-card:hover {
+    transform: translateY(-5px);
+}
+.team-card h3 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 800;
+}
+.team-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    font-size: 14px;
+}
+.timeline {
+    position: relative;
+    padding-left: 35px;
+    margin-top: 25px;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #667eea, #764ba2);
+}
+.timeline-item {
+    position: relative;
+    padding-bottom: 25px;
+}
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -41px;
+    top: 5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #667eea;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #667eea;
+}
+.timeline-date {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.timeline-content {
+    color: #333;
+    line-height: 1.7;
+    font-size: 14px;
+}
+.settings-card {
+    background: linear-gradient(to bottom right, #667eea, #764ba2);
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+.settings-card h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: 800;
+}
+.settings-item {
+    background: rgba(255,255,255,0.15);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+.settings-item strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+.settings-item input {
+    background: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    width: 100%;
+    font-weight: 600;
+}
+@media (max-width: 768px) {
+    .header { flex-direction: column; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .tabs { flex-direction: column; }
+}
+</style>
+
+<div id="loginScreen" class="login-container">
+    <h2>🚀 Proje Dağıtım Sistemi</h2>
+    <div class="form-group">
+        <label>Kullanıcı Adı</label>
+        <input type="text" id="loginUsername" placeholder="Kullanıcı adınızı girin">
+    </div>
+    <div class="form-group">
+        <label>Şifre</label>
+        <input type="password" id="loginPassword" placeholder="Şifrenizi girin">
+    </div>
+    <button class="btn" onclick="login()">🔐 Giriş Yap</button>
+</div>
+
+<div id="mainScreen" style="display: none;">
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Proje Dağıtım Sistemi</h1>
+            <div class="user-info">
+                <div class="user-badge" id="userBadge"></div>
+                <button class="settings-btn" onclick="switchTab('settings')" id="settingsBtn" style="display:none;">⚙️ Ayarlar</button>
+                <button class="logout-btn" onclick="logout()">🚪 Çıkış</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</div>
+            <div class="tab" onclick="switchTab('products')" id="tabProducts">📦 Projeler</div>
+            <div class="tab" onclick="switchTab('myTasks')" id="tabMyTasks" style="display:none;">✅ Görevlerim</div>
+            <div class="tab" onclick="switchTab('team')" id="tabTeam" style="display:none;">👥 Ekip</div>
+            <div class="tab" onclick="switchTab('archive')">📁 Arşiv</div>
+        </div>
+
+        <div id="dashboardTab" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Toplam Proje</h3>
+                    <div class="number" id="totalProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Bekleyen</h3>
+                    <div class="number" id="pendingProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Devam Eden</h3>
+                    <div class="number" id="inProgressProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Tamamlanan</h3>
+                    <div class="number" id="completedProducts">0</div>
+                </div>
+            </div>
+            <div class="content-card">
+                <h2>📈 Ekip Performansı</h2>
+                <div class="team-grid" id="teamPerformance"></div>
+            </div>
+            <div class="content-card">
+                <h2>🔔 Son Aktiviteler</h2>
+                <div class="timeline" id="activityTimeline"></div>
+            </div>
+        </div>
+
+        <div id="productsTab" class="tab-content">
+            <div class="content-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 25px;">
+                    <h2>📦 Proje Yönetimi</h2>
+                    <button class="btn" style="width: auto; padding: 12px 28px;" onclick="openAddProductModal()" id="addProductBtn">➕ Yeni Proje</button>
+                </div>
+                <div class="products-grid" id="productsList"></div>
+            </div>
+        </div>
+
+        <div id="myTasksTab" class="tab-content">
+            <div class="content-card">
+                <h2>✅ Görevlerim</h2>
+                <div class="products-grid" id="myTasksList"></div>
+            </div>
+        </div>
+
+        <div id="teamTab" class="tab-content">
+            <div class="content-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 25px;">
+                    <h2>👥 Ekip Yönetimi</h2>
+                    <button class="btn" style="width: auto; padding: 12px 28px;" onclick="openAddTeamMemberModal()">➕ Ekip Üyesi Ekle</button>
+                </div>
+                <div class="team-grid" id="teamList"></div>
+            </div>
+        </div>
+
+        <div id="archiveTab" class="tab-content">
+            <div class="content-card">
+                <h2>📁 Arşiv</h2>
+                <div class="products-grid" id="archiveList"></div>
+            </div>
+        </div>
+
+        <div id="settingsTab" class="tab-content">
+            <div class="content-card">
+                <h2>⚙️ Hesap Ayarları</h2>
+                <div class="settings-card">
+                    <h3>🔐 Giriş Bilgilerim</h3>
+                    <div class="settings-item">
+                        <strong>Kullanıcı Adı</strong>
+                        <input type="text" id="settingsUsername" readonly style="cursor: not-allowed; background: rgba(255,255,255,0.5);">
+                    </div>
+                    <div class="settings-item">
+                        <strong>Yeni Şifre</strong>
+                        <input type="password" id="settingsPassword" placeholder="Yeni şifrenizi girin">
+                    </div>
+                    <button class="btn" onclick="updateMyCredentials()">💾 Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div id="addProductModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>➕ Yeni Proje Ekle</h3>
+            <button class="close-modal" onclick="closeModal('addProductModal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label>📝 Proje Adı</label>
+            <input type="text" id="productName">
+        </div>
+        <div class="form-group">
+            <label>🔗 Ürün Linki</label>
+            <input type="url" id="productLink">
+        </div>
+        <div class="form-group">
+            <label>💰 Satış Fiyatı (TL)</label>
+            <input type="number" id="productPrice">
+        </div>
+        <div class="form-group">
+            <label>👤 Ekip Üyesi</label>
+            <select id="teamMemberSelect"></select>
+        </div>
+        <div class="form-group">
+            <label>📋 Not</label>
+            <textarea id="productNote" rows="3"></textarea>
+        </div>
+        <button class="btn" onclick="addProduct()">✅ Ekle</button>
+    </div>
+</div>
+
+<div id="productDetailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="detailProductName">📦 Proje Detayı</h3>
+            <button class="close-modal" onclick="closeModal('productDetailModal')">&times;</button>
+        </div>
+        <div id="productDetailContent"></div>
+        
+        <h4 style="margin-top: 30px; color: #667eea;">💬 Mesajlar</h4>
+        <div class="chat-container" id="chatContainer"></div>
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Mesajınızı yazın...">
+            <button class="send-btn" onclick="sendMessage()">📤 Gönder</button>
+        </div>
+        
+        <h4 style="margin-top: 30px; color: #667eea;">🎥 Video Linkleri</h4>
+        <div class="video-list" id="videoList"></div>
+        <div class="form-group" style="margin-top: 20px;">
+            <label>🔗 Google Drive Video Linki</label>
+            <input type="url" id="videoLinkInput" placeholder="https://drive.google.com/...">
+            <small style="color: #999; margin-top: 8px; display: block;">
+                Videoyu Drive'a yükle → Sağ tık → Paylaş → Linki kopyala
+            </small>
+        </div>
+        <button class="btn" onclick="addVideoLink()" style="margin-top: 10px;">➕ Video Linki Ekle</button>
+        
+        <div class="form-group" style="margin-top: 20px;">
+            <label>🌐 Ürünün Site Linki</label>
+            <input type="url" id="siteLink">
+        </div>
+        <button class="btn" onclick="saveSiteLink()">💾 Site Linkini Kaydet</button>
+    </div>
+</div>
+
+<div id="addTeamMemberModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>➕ Yeni Ekip Üyesi</h3>
+            <button class="close-modal" onclick="closeModal('addTeamMemberModal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label>👤 Ad Soyad</label>
+            <input type="text" id="newMemberName" oninput="generateUsername()">
+        </div>
+        <div class="form-group">
+            <label>🔐 Kullanıcı Adı (Otomatik)</label>
+            <input type="text" id="newMemberUsername" readonly style="background: #f5f5f5;">
+        </div>
+        <div class="form-group">
+            <label>🔑 Şifre</label>
+            <input type="password" id="newMemberPassword">
+        </div>
+        <button class="btn" onclick="addTeamMember()">✅ Ekle</button>
+    </div>
+</div>
+
+<div id="editTeamMemberModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>✏️ Ekip Üyesini Düzenle</h3>
+            <button class="close-modal" onclick="closeModal('editTeamMemberModal')">&times;</button>
+        </div>
+        <input type="hidden" id="editMemberUsername">
+        <div class="form-group">
+            <label>👤 Ad Soyad</label>
+            <input type="text" id="editMemberName">
+        </div>
+        <div class="form-group">
+            <label>🔑 Yeni Şifre</label>
+            <input type="password" id="editMemberPassword">
+        </div>
+        <button class="btn" onclick="saveTeamMemberEdit()">💾 Kaydet</button>
+        <button class="btn" style="background: #ff4757; margin-top: 12px;" onclick="deleteTeamMember()">🗑️ Sil</button>
+    </div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+let currentUser = null;
+let currentProductId = null;
+let allProducts = {};
+
+// Initialize default admin
+async function initializeAdmin() {
+    const usersRef = window.dbRef(window.db, 'users/hakan');
+    const snapshot = await window.dbGet(usersRef);
+    
+    if (!snapshot.exists()) {
+        await window.dbSet(usersRef, {
+            username: 'hakan',
+            password: 'hakan123',
+            role: 'admin',
+            name: 'Hakan'
+        });
+        console.log('✅ Admin oluşturuldu');
+    }
+}
+
+initializeAdmin();
+
+// Login
+async function login() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!username || !password) {
+        showNotification('Kullanıcı adı ve şifre gerekli!', 'error');
+        return;
+    }
+
+    const userRef = window.dbRef(window.db, \`users/\${username}\`);
+    const snapshot = await window.dbGet(userRef);
+
+    if (snapshot.exists()) {
+        const user = snapshot.val();
+        if (user.password === password) {
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            document.getElementById('userBadge').textContent = currentUser.name;
+
+            if (currentUser.role === 'team') {
+                document.getElementById('tabMyTasks').style.display = 'block';
+                document.getElementById('addProductBtn').style.display = 'none';
+                document.getElementById('tabTeam').style.display = 'none';
+                document.getElementById('settingsBtn').style.display = 'block';
+            } else {
+                document.getElementById('tabTeam').style.display = 'block';
+                document.getElementById('settingsBtn').style.display = 'block';
+            }
+
+            loadTeamMembers();
+            loadProducts();
+            showNotification('Hoş geldiniz! 🎉', 'success');
+        } else {
+            showNotification('Şifre hatalı!', 'error');
+        }
+    } else {
+        showNotification('Kullanıcı bulunamadı!', 'error');
+    }
+}
+
+window.login = login;
+
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    location.reload();
+}
+window.logout = logout;
+
+// Auto login
+window.addEventListener('load', async () => {
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainScreen').style.display = 'block';
+        document.getElementById('userBadge').textContent = currentUser.name;
+
+        if (currentUser.role === 'team') {
+            document.getElementById('tabMyTasks').style.display = 'block';
+            document.getElementById('addProductBtn').style.display = 'none';
+            document.getElementById('tabTeam').style.display = 'none';
+            document.getElementById('settingsBtn').style.display = 'block';
+        } else {
+            document.getElementById('tabTeam').style.display = 'block';
+            document.getElementById('settingsBtn').style.display = 'block';
+        }
+
+        loadTeamMembers();
+        loadProducts();
+    }
+});
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(tabName + 'Tab').classList.add('active');
+
+    if (tabName === 'myTasks') loadMyTasks();
+    else if (tabName === 'archive') loadArchive();
+    else if (tabName === 'team') loadTeamDetails();
+    else if (tabName === 'settings') loadSettings();
+}
+window.switchTab = switchTab;
+
+function loadSettings() {
+    document.getElementById('settingsUsername').value = currentUser.username;
+    document.getElementById('settingsPassword').value = '';
+}
+window.loadSettings = loadSettings;
+
+async function updateMyCredentials() {
+    const newPassword = document.getElementById('settingsPassword').value;
+    if (!newPassword) {
+        showNotification('Lütfen yeni şifrenizi girin!', 'error');
+        return;
+    }
+
+    const userRef = window.dbRef(window.db, \`users/\${currentUser.username}\`);
+    await window.dbUpdate(userRef, { password: newPassword });
+    
+    currentUser.password = newPassword;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+    document.getElementById('settingsPassword').value = '';
+    showNotification('Şifre güncellendi! 🎉', 'success');
+}
+window.updateMyCredentials = updateMyCredentials;
+
+async function loadTeamMembers() {
+    const usersRef = window.dbRef(window.db, 'users');
+    const snapshot = await window.dbGet(usersRef);
+    
+    const teamSelect = document.getElementById('teamMemberSelect');
+    teamSelect.innerHTML = '<option value="">Ekip üyesi seçin</option>';
+
+    if (snapshot.exists()) {
+        const users = snapshot.val();
+        Object.entries(users).forEach(([key, user]) => {
+            if (user.role === 'team') {
+                teamSelect.innerHTML += \`<option value="\${key}">\${user.name}</option>\`;
+            }
+        });
+    }
+}
+window.loadTeamMembers = loadTeamMembers;
+
+function openAddProductModal() {
+    document.getElementById('productName').value = '';
+    document.getElementById('productLink').value = '';
+    document.getElementById('productPrice').value = '';
+    document.getElementById('teamMemberSelect').value = '';
+    document.getElementById('productNote').value = '';
+    document.getElementById('addProductModal').classList.add('active');
+}
+window.openAddProductModal = openAddProductModal;
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+window.closeModal = closeModal;
+
+async function addProduct() {
+    const name = document.getElementById('productName').value.trim();
+    const link = document.getElementById('productLink').value.trim();
+    const price = document.getElementById('productPrice').value;
+    const teamMember = document.getElementById('teamMemberSelect').value;
+    const note = document.getElementById('productNote').value.trim();
+
+    if (!name || !link || !price || !teamMember) {
+        showNotification('Tüm alanları doldurun!', 'error');
+        return;
+    }
+
+    const productId = 'prod_' + Date.now();
+    const productRef = window.dbRef(window.db, \`products/\${productId}\`);
+
+    await window.dbSet(productRef, {
+        id: productId,
+        name,
+        link,
+        price: parseFloat(price),
+        assignedTo: teamMember,
+        assignedBy: currentUser.username,
+        status: 'beklemede',
+        note,
+        createdAt: new Date().toISOString(),
+        messages: {},
+        videoLinks: {},
+        siteLink: '',
+        adActive: false
+    });
+
+    closeModal('addProductModal');
+    showNotification('Proje eklendi! 🎉', 'success');
+    loadProducts();
+}
+window.addProduct = addProduct;
+
+async function loadProducts() {
+    const productsRef = window.dbRef(window.db, 'products');
+    
+    window.dbOnValue(productsRef, (snapshot) => {
+        if (snapshot.exists()) {
+            allProducts = snapshot.val();
+        } else {
+            allProducts = {};
+        }
+        displayProducts();
+        updateDashboard();
+    });
+}
+window.loadProducts = loadProducts;
+
+function displayProducts() {
+    const products = Object.values(allProducts).filter(p => 
+        p.status !== 'tamamlandi' && p.status !== 'iptal'
+    ).filter(p => {
+        if (currentUser.role === 'team') {
+            return p.assignedTo === currentUser.username;
+        }
+        return true;
+    });
+
+    const container = document.getElementById('productsList');
+    
+    if (products.length === 0) {
+        container.innerHTML = \`
+            <div class="empty-state">
+                <div class="empty-state-icon">📦</div>
+                <p>Henüz proje yok</p>
+            </div>
+        \`;
+        return;
+    }
+
+    container.innerHTML = products.map(p => {
+        const statusText = {
+            'beklemede': 'Beklemede',
+            'devam': 'Devam Ediyor',
+            'tamamlandi': 'Tamamlandı',
+            'iptal': 'İptal'
+        };
+
+        const videoCount = p.videoLinks ? Object.keys(p.videoLinks).length : 0;
+        const messageCount = p.messages ? Object.keys(p.messages).length : 0;
+
+        return \`
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-title">📦 \${p.name}</div>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="status-badge status-\${p.status}">\${statusText[p.status]}</div>
+                        \${p.adActive ? '<div class="ad-active-badge">📢 Reklam Aktif</div>' : ''}
+                    </div>
+                </div>
+                <div class="product-details">
+                    <div class="product-detail"><strong>💰 Fiyat:</strong> \${p.price} TL</div>
+                    <div class="product-detail"><strong>🎥 Video:</strong> \${videoCount} • <strong>💬 Mesaj:</strong> \${messageCount}</div>
+                </div>
+                <div class="product-actions">
+                    <button class="action-btn btn-primary" onclick="openProductDetail('\${p.id}')">📋 Detay</button>
+                    \${currentUser.role === 'admin' && !p.adActive ? 
+                        \`<button class="action-btn btn-ad" onclick="markAdActive('\${p.id}')">📢 Reklam Açıldı</button>\` : ''}
+                    \${currentUser.role === 'team' && p.status === 'beklemede' ? 
+                        \`<button class="action-btn btn-warning" onclick="updateStatus('\${p.id}', 'devam')">▶️ Başlat</button>\` : ''}
+                    \${currentUser.role === 'team' && p.status === 'devam' ? 
+                        \`<button class="action-btn btn-success" onclick="updateStatus('\${p.id}', 'tamamlandi')">✅ Tamamla</button>\` : ''}
+                    \${currentUser.role === 'admin' ? 
+                        \`<button class="action-btn btn-danger" onclick="updateStatus('\${p.id}', 'iptal')">❌ İptal</button>\` : ''}
+                </div>
+            </div>
+        \`;
+    }).join('');
+}
+
+async function markAdActive(productId) {
+    const productRef = window.dbRef(window.db, \`products/\${productId}\`);
+    await window.dbUpdate(productRef, {
+        adActive: true,
+        adActivatedAt: new Date().toISOString()
+    });
+    showNotification('Reklam durumu güncellendi! 📢', 'success');
+}
+window.markAdActive = markAdActive;
+
+async function updateStatus(productId, newStatus) {
+    const productRef = window.dbRef(window.db, \`products/\${productId}\`);
+    await window.dbUpdate(productRef, {
+        status: newStatus,
+        updatedAt: new Date().toISOString()
+    });
+    showNotification('Durum güncellendi! 🎉', 'success');
+}
+window.updateStatus = updateStatus;
+
+async function openProductDetail(productId) {
+    currentProductId = productId;
+    const product = allProducts[productId];
+
+    document.getElementById('detailProductName').textContent = '📦 ' + product.name;
+
+    const statusText = {
+        'beklemede': 'Beklemede',
+        'devam': 'Devam Ediyor',
+        'tamamlandi': 'Tamamlandı',
+        'iptal': 'İptal'
+    };
+
+    document.getElementById('productDetailContent').innerHTML = \`
+        <div class="product-detail"><strong>📊 Durum:</strong> <span class="status-badge status-\${product.status}">\${statusText[product.status]}</span> \${product.adActive ? '<span class="ad-active-badge">📢 Reklam Aktif</span>' : ''}</div>
+        <div class="product-detail"><strong>💰 Fiyat:</strong> \${product.price} TL</div>
+        <div class="product-detail"><strong>🔗 Ürün:</strong> <a href="\${product.link}" target="_blank" style="color: #667eea;">Linke Git</a></div>
+        \${product.note ? \`<div class="product-detail"><strong>📝 Not:</strong> \${product.note}</div>\` : ''}
+        \${product.siteLink ? \`<div class="product-detail"><strong>🌐 Site:</strong> <a href="\${product.siteLink}" target="_blank" style="color: #667eea;">Siteye Git</a></div>\` : ''}
+    \`;
+
+    loadMessages(product.messages || {});
+    loadVideoLinks(product.videoLinks || {});
+    document.getElementById('siteLink').value = product.siteLink || '';
+    document.getElementById('productDetailModal').classList.add('active');
+}
+window.openProductDetail = openProductDetail;
+
+function loadMessages(messages) {
+    const container = document.getElementById('chatContainer');
+    const messageArray = Object.values(messages);
+
+    if (messageArray.length === 0) {
+        container.innerHTML = '<p style="color: #999; text-align: center;">Henüz mesaj yok</p>';
+        return;
+    }
+
+    container.innerHTML = messageArray.map(msg => \`
+        <div class="chat-message \${msg.role === 'admin' ? 'admin' : ''}">
+            <div class="chat-header">
+                <span class="chat-author">\${msg.author}</span>
+                <span class="chat-time">\${new Date(msg.timestamp).toLocaleString('tr-TR')}</span>
+            </div>
+            <div class="chat-text">\${msg.text}</div>
+        </div>
+    \`).join('');
+
+    container.scrollTop = container.scrollHeight;
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+
+    if (!text || !currentProductId) return;
+
+    const messageId = 'msg_' + Date.now();
+    const messageRef = window.dbRef(window.db, \`products/\${currentProductId}/messages/\${messageId}\`);
+
+    await window.dbSet(messageRef, {
+        author: currentUser.name,
+        role: currentUser.role,
+        text,
+        timestamp: new Date().toISOString()
+    });
+
+    input.value = '';
+}
+window.sendMessage = sendMessage;
+
+function loadVideoLinks(videoLinks) {
+    const container = document.getElementById('videoList');
+    const videoArray = Object.entries(videoLinks);
+
+    if (videoArray.length === 0) {
+        container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Henüz video yok</p>';
+        return;
+    }
+
+    container.innerHTML = videoArray.map(([id, video]) => \`
+        <div class="video-item">
+            <div style="flex: 1;">
+                <a href="\${video.url}" target="_blank" class="video-link">🎥 \${video.name || 'Video'}</a>
+                <small style="color: #999; display: block; margin-top: 5px;">\${new Date(video.uploadedAt).toLocaleDateString('tr-TR')}</small>
+            </div>
+            <button class="action-btn btn-danger" onclick="deleteVideoLink('\${id}')">🗑️</button>
+        </div>
+    \`).join('');
+}
+
+async function addVideoLink() {
+    const url = document.getElementById('videoLinkInput').value.trim();
+
+    if (!url) {
+        showNotification('Video linki girin!', 'error');
+        return;
+    }
+
+    if (!url.includes('drive.google.com')) {
+        showNotification('Lütfen Google Drive linki girin!', 'error');
+        return;
+    }
+
+    const videoId = 'vid_' + Date.now();
+    const videoRef = window.dbRef(window.db, \`products/\${currentProductId}/videoLinks/\${videoId}\`);
+
+    await window.dbSet(videoRef, {
+        url,
+        name: 'Video',
+        uploadedAt: new Date().toISOString(),
+        uploadedBy: currentUser.name
+    });
+
+    document.getElementById('videoLinkInput').value = '';
+    showNotification('Video linki eklendi! 🎉', 'success');
+}
+window.addVideoLink = addVideoLink;
+
+async function deleteVideoLink(videoId) {
+    if (!confirm('Bu videoyu silmek istediğinize emin misiniz?')) return;
+
+    const videoRef = window.dbRef(window.db, \`products/\${currentProductId}/videoLinks/\${videoId}\`);
+    await window.dbRemove(videoRef);
+    showNotification('Video silindi!', 'success');
+}
+window.deleteVideoLink = deleteVideoLink;
+
+async function saveSiteLink() {
+    const siteLink = document.getElementById('siteLink').value.trim();
+    
+    const productRef = window.dbRef(window.db, \`products/\${currentProductId}\`);
+    await window.dbUpdate(productRef, { siteLink });
+    
+    showNotification('Site linki kaydedildi! 🎉', 'success');
+}
+window.saveSiteLink = saveSiteLink;
+
+function loadMyTasks() {
+    const products = Object.values(allProducts).filter(p => 
+        p.assignedTo === currentUser.username &&
+        p.status !== 'tamamlandi' && 
+        p.status !== 'iptal'
+    );
+
+    const container = document.getElementById('myTasksList');
+    
+    if (products.length === 0) {
+        container.innerHTML = \`<div class="empty-state"><div class="empty-state-icon">✅</div><p>Henüz görev yok</p></div>\`;
+    } else {
+        // Use same display logic
+        container.innerHTML = products.map(p => {
+            const statusText = {
+                'beklemede': 'Beklemede',
+                'devam': 'Devam Ediyor'
+            };
+
+            const videoCount = p.videoLinks ? Object.keys(p.videoLinks).length : 0;
+
+            return \`
+                <div class="product-card">
+                    <div class="product-header">
+                        <div class="product-title">📦 \${p.name}</div>
+                        <div class="status-badge status-\${p.status}">\${statusText[p.status]}</div>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-detail"><strong>💰 Fiyat:</strong> \${p.price} TL</div>
+                        <div class="product-detail"><strong>🎥 Video:</strong> \${videoCount}</div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="action-btn btn-primary" onclick="openProductDetail('\${p.id}')">📋 Detay</button>
+                        \${p.status === 'beklemede' ? 
+                            \`<button class="action-btn btn-warning" onclick="updateStatus('\${p.id}', 'devam')">▶️ Başlat</button>\` : 
+                            \`<button class="action-btn btn-success" onclick="updateStatus('\${p.id}', 'tamamlandi')">✅ Tamamla</button>\`}
+                    </div>
+                </div>
+            \`;
+        }).join('');
+    }
+}
+window.loadMyTasks = loadMyTasks;
+
+function loadArchive() {
+    const products = Object.values(allProducts).filter(p => 
+        p.status === 'tamamlandi' || p.status === 'iptal'
+    );
+
+    const container = document.getElementById('archiveList');
+    
+    if (products.length === 0) {
+        container.innerHTML = \`<div class="empty-state"><div class="empty-state-icon">📁</div><p>Arşiv boş</p></div>\`;
+    } else {
+        container.innerHTML = products.map(p => {
+            const statusText = {
+                'tamamlandi': 'Tamamlandı',
+                'iptal': 'İptal'
+            };
+
+            return \`
+                <div class="product-card">
+                    <div class="product-header">
+                        <div class="product-title">📦 \${p.name}</div>
+                        <div class="status-badge status-\${p.status}">\${statusText[p.status]}</div>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-detail"><strong>💰 Fiyat:</strong> \${p.price} TL</div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="action-btn btn-primary" onclick="openProductDetail('\${p.id}')">📋 Detay</button>
+                    </div>
+                </div>
+            \`;
+        }).join('');
+    }
+}
+window.loadArchive = loadArchive;
+
+function updateDashboard() {
+    let products = Object.values(allProducts);
+    
+    if (currentUser.role === 'team') {
+        products = products.filter(p => p.assignedTo === currentUser.username);
+    }
+
+    const active = products.filter(p => p.status !== 'tamamlandi' && p.status !== 'iptal');
+
+    document.getElementById('totalProducts').textContent = active.length;
+    document.getElementById('pendingProducts').textContent = active.filter(p => p.status === 'beklemede').length;
+    document.getElementById('inProgressProducts').textContent = active.filter(p => p.status === 'devam').length;
+    document.getElementById('completedProducts').textContent = products.filter(p => p.status === 'tamamlandi').length;
+
+    // Performance cards
+    if (currentUser.role === 'admin') {
+        const teamPerf = document.getElementById('teamPerformance');
+        teamPerf.innerHTML = '<p style="color: #999;">Ekip üyesi eklendiğinde performans görünecek</p>';
+    } else {
+        const teamPerf = document.getElementById('teamPerformance');
+        teamPerf.innerHTML = \`
+            <div class="team-card">
+                <h3>📊 Performansım</h3>
+                <div class="team-stat"><span>Toplam:</span><strong>\${products.length}</strong></div>
+                <div class="team-stat"><span>✅ Tamamlanan:</span><strong>\${products.filter(p => p.status === 'tamamlandi').length}</strong></div>
+            </div>
+        \`;
+    }
+
+    // Timeline
+    document.getElementById('activityTimeline').innerHTML = '<p style="color: #999;">Aktiviteler yüklenecek...</p>';
+}
+
+async function loadTeamDetails() {
+    const usersRef = window.dbRef(window.db, 'users');
+    const snapshot = await window.dbGet(usersRef);
+    
+    const teamList = document.getElementById('teamList');
+
+    if (!snapshot.exists()) {
+        teamList.innerHTML = '<p style="color: #999;">Henüz ekip üyesi yok</p>';
+        return;
+    }
+
+    const users = snapshot.val();
+    const teamMembers = Object.entries(users).filter(([key, user]) => user.role === 'team');
+
+    if (teamMembers.length === 0) {
+        teamList.innerHTML = '<p style="color: #999;">Henüz ekip üyesi yok</p>';
+        return;
+    }
+
+    teamList.innerHTML = teamMembers.map(([key, user]) => {
+        const userProducts = Object.values(allProducts).filter(p => p.assignedTo === key);
+        const completed = userProducts.filter(p => p.status === 'tamamlandi').length;
+
+        return \`
+            <div class="team-card">
+                <h3>👤 \${user.name}</h3>
+                <div class="team-stat"><span>Toplam:</span><strong>\${userProducts.length}</strong></div>
+                <div class="team-stat"><span>✅ Tamamlanan:</span><strong>\${completed}</strong></div>
+                <button class="btn" style="margin-top: 20px;" onclick="openEditTeamMemberModal('\${key}')">✏️ Düzenle</button>
+            </div>
+        \`;
+    }).join('');
+}
+window.loadTeamDetails = loadTeamDetails;
+
+function openAddTeamMemberModal() {
+    document.getElementById('newMemberName').value = '';
+    document.getElementById('newMemberUsername').value = '';
+    document.getElementById('newMemberPassword').value = '';
+    document.getElementById('addTeamMemberModal').classList.add('active');
+}
+window.openAddTeamMemberModal = openAddTeamMemberModal;
+
+function generateUsername() {
+    const name = document.getElementById('newMemberName').value.trim();
+    if (!name) {
+        document.getElementById('newMemberUsername').value = '';
+        return;
+    }
+
+    const username = name.toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9]/g, '');
+
+    document.getElementById('newMemberUsername').value = username;
+}
+window.generateUsername = generateUsername;
+
+async function addTeamMember() {
+    const name = document.getElementById('newMemberName').value.trim();
+    const username = document.getElementById('newMemberUsername').value.trim();
+    const password = document.getElementById('newMemberPassword').value;
+
+    if (!name || !username || !password) {
+        showNotification('Tüm alanları doldurun!', 'error');
+        return;
+    }
+
+    const userRef = window.dbRef(window.db, \`users/\${username}\`);
+    const snapshot = await window.dbGet(userRef);
+
+    if (snapshot.exists()) {
+        showNotification('Bu kullanıcı adı kullanılıyor!', 'error');
+        return;
+    }
+
+    await window.dbSet(userRef, {
+        username,
+        password,
+        role: 'team',
+        name
+    });
+
+    closeModal('addTeamMemberModal');
+    showNotification(\`\${name} eklendi! 🎉\`, 'success');
+    loadTeamMembers();
+    loadTeamDetails();
+}
+window.addTeamMember = addTeamMember;
+
+async function openEditTeamMemberModal(username) {
+    const userRef = window.dbRef(window.db, \`users/\${username}\`);
+    const snapshot = await window.dbGet(userRef);
+
+    if (snapshot.exists()) {
+        const user = snapshot.val();
+        document.getElementById('editMemberUsername').value = username;
+        document.getElementById('editMemberName').value = user.name;
+        document.getElementById('editMemberPassword').value = '';
+        document.getElementById('editTeamMemberModal').classList.add('active');
+    }
+}
+window.openEditTeamMemberModal = openEditTeamMemberModal;
+
+async function saveTeamMemberEdit() {
+    const username = document.getElementById('editMemberUsername').value;
+    const name = document.getElementById('editMemberName').value.trim();
+    const password = document.getElementById('editMemberPassword').value;
+
+    if (!name) {
+        showNotification('İsim boş olamaz!', 'error');
+        return;
+    }
+
+    const updates = { name };
+    if (password) updates.password = password;
+
+    const userRef = window.dbRef(window.db, \`users/\${username}\`);
+    await window.dbUpdate(userRef, updates);
+
+    closeModal('editTeamMemberModal');
+    showNotification('Güncellendi! 🎉', 'success');
+    loadTeamDetails();
+}
+window.saveTeamMemberEdit = saveTeamMemberEdit;
+
+async function deleteTeamMember() {
+    if (!confirm('Bu ekip üyesini silmek istediğinize emin misiniz?')) return;
+
+    const username = document.getElementById('editMemberUsername').value;
+    const userRef = window.dbRef(window.db, \`users/\${username}\`);
+    await window.dbRemove(userRef);
+
+    closeModal('editTeamMemberModal');
+    showNotification('Ekip üyesi silindi!', 'success');
+    loadTeamMembers();
+    loadTeamDetails();
+}
+window.deleteTeamMember = deleteTeamMember;
+
+function showNotification(message, type = 'info') {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = \`notification \${type} show\`;
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+window.showNotification = showNotification;
+
+// Enter key
+document.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        if (document.getElementById('loginPassword') === document.activeElement) {
+            login();
+        } else if (document.getElementById('chatInput') === document.activeElement) {
+            sendMessage();
+        }
+    }
+});
+</script>
+            `;
+        }
+    </script>
+</body>
+</html>
